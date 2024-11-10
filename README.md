@@ -48,6 +48,10 @@ FitEat помогает пользователям:
 6. **Отслеживайте свои успехи** с помощью команд `/track_food` и `/track_weight`.
 7. **Настройте напоминания** для соблюдения режима питания и водного баланса с помощью `/set_reminders`.
 
+## О работе промптов
+
+**Ссылка на подробную информацию в Google Colab** ---> https://colab.research.google.com/drive/1zD20jqRjx_qaKH4AkyvqT0knW-JlFzxj?usp=sharing#scrollTo=yPu4NC4FIkIc
+
 ## Вклад в проект
 
 Мы рады вашему вкладу в развитие FitEat! Если у вас есть идеи по улучшению бота, пожалуйста, создайте pull request или откройте issue.
