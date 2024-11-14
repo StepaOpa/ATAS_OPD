@@ -1,5 +1,5 @@
 import requests
-
+from config import YANDEX_CLOUD, YANDEX_GPT_API
 # b1gignv1fqqv4i0feomd
 
 # AQVNwk7s-5kcJcHpzAIJX5kGCGhuDcTQ8886PSmb
@@ -7,11 +7,11 @@ import requests
 
 def get_answer(target, ban_products, number_of_calories):
     prompt = {
-        "modelUri": "gpt://b1gignv1fqqv4i0feomd/yandexgpt-lite",
+        "modelUri": f"gpt://{YANDEX_CLOUD}/yandexgpt-lite",
         "completionOptions": {
             "stream": False,
             "temperature": 0.5,
-            "maxTokens": "1000"
+            "maxTokens": "2000"
         },
         "messages": [
             {
@@ -29,7 +29,7 @@ def get_answer(target, ban_products, number_of_calories):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Api-Key AQVNwk7s-5kcJcHpzAIJX5kGCGhuDcTQ8886PSmb",
+        "Authorization": f"Api-Key {YANDEX_GPT_API}",
     }
 
     response = requests.post(url, headers=headers, json=prompt)
