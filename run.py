@@ -3,7 +3,7 @@ import logging
 
 
 from aiogram import Bot, Dispatcher
-from config import TOKEN
+from config import TOKENlesha as TOKEN
 from app.handlers.calories_calculator_handler import router as calories_router
 from app.handlers.utility_handlers import router as utility_router
 from app.handlers.survey_handler import router as survey_router
