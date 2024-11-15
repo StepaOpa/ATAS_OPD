@@ -4,6 +4,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from app.calories_calculator import calculate_calories
+from app.users_calories import auth
 router = Router()
 
 
@@ -53,5 +54,7 @@ async def height(message: Message, state: FSMContext):
 async def activity(message: Message, state: FSMContext):
     await state.update_data(activity=message.text)
     data = await state.get_data()
-    await message.answer(f"{calculate_calories(data["age"], data["weight"], data["height"], data["sex"],  data["activity"])}")
+    calories = calculate_calories(data["age"], data["weight"], data["height"], data["sex"],  data["activity"])
+    await message.answer(f"{calories}")
     await state.clear()
+    auth(calories)

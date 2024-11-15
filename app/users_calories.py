@@ -10,7 +10,7 @@ async def handle_message(message: types.Message):
     return user_id
 
 
-def creating_tablet():
+async def creating_tablet():
     connection = sqlite3.connect('tablet.sql')
     cursor = connection.cursor()
     query = 'CREATE TABLE IF NOT EXISTS users (id int auto_increment primary key, ides varchar(50), calories varchar(50))'
@@ -47,7 +47,8 @@ async def auth(calories):
         sql = f'INSERT INTO users (ides, calories) VALUES ("{user_id}","{calories}")'
         cursor.execute(sql)
         connection.commit()
-
+    else:
+        return calories
     cursor.close()
     connection.close()
 
