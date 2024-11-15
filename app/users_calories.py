@@ -3,7 +3,7 @@ from aiogram import types, Dispatcher, Bot
 from config import TOKENlesha as TOKEN
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(bot)
 
 
 @dp.message_handler()
