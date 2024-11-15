@@ -1,9 +1,8 @@
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import Command
 from aiogram.types import Message
-import app.keyboards as kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from aiogram import Router, types
+from aiogram import Router
 from app.calories_calculator import calculate_calories
 router = Router()
 
@@ -16,43 +15,38 @@ class Calories_calculator(StatesGroup):
     activity = State()
 
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    await message.answer('Hello!', reply_markup=kb.main_menu)
-
-
 @router.message(lambda message: message.text == 'Калькулятор калорий')
 async def calories_calculator(message: Message, state: FSMContext):
     await state.set_state(Calories_calculator.age)
-    await message.answer('Enter your age')
+    await message.answer('Введите ваш возраст')
 
 
 @router.message(Calories_calculator.age)
 async def age(message: Message, state: FSMContext):
     await state.update_data(age=int(message.text))
     await state.set_state(Calories_calculator.sex)
-    await message.answer('Enter your sex')
+    await message.answer('Введите ваш пол')
 
 
 @router.message(Calories_calculator.sex)
 async def sex(message: Message, state: FSMContext):
     await state.update_data(sex=message.text)
     await state.set_state(Calories_calculator.weight)
-    await message.answer('Enter your weight')
+    await message.answer('Введите ваш вес')
 
 
 @router.message(Calories_calculator.weight)
 async def weight(message: Message, state: FSMContext):
     await state.update_data(weight=int(message.text))
     await state.set_state(Calories_calculator.height)
-    await message.answer('Enter your height')
+    await message.answer('Введите ваш рост')
 
 
 @router.message(Calories_calculator.height)
 async def height(message: Message, state: FSMContext):
     await state.update_data(height=int(message.text))
     await state.set_state(Calories_calculator.activity)
-    await message.answer('Enter your activity level')
+    await message.answer('Введите ваш уровень активности')
 
 
 @router.message(Calories_calculator.activity)

@@ -5,7 +5,7 @@ from config import YANDEX_CLOUD, YANDEX_GPT_API
 # AQVNwk7s-5kcJcHpzAIJX5kGCGhuDcTQ8886PSmb
 
 
-def get_answer(target, ban_products, number_of_calories):
+def get_advice(goal, ban_products, number_of_calories):
     prompt = {
         "modelUri": f"gpt://{YANDEX_CLOUD}/yandexgpt-lite",
         "completionOptions": {
@@ -20,7 +20,7 @@ def get_answer(target, ban_products, number_of_calories):
             },
             {
                 "role": "user",
-                "text": f"generate a varied meal plan for the week for {target}. Diet products should not include: {ban_products}. The number of calories per day should be about {number_of_calories}. The number of calories for each day should be calculated)"
+                "text": f"generate a varied meal plan for the week for {goal}. Diet products should not include: {ban_products}. The number of calories per day should be about {number_of_calories}. The number of calories for each day should be calculated)"
             }
         ]
     }
@@ -40,12 +40,3 @@ def get_answer(target, ban_products, number_of_calories):
     text = response_json['result']['alternatives'][0]['message']['text']
 
     return text
-
-
-if __name__ == '__main__':
-    target = input(
-        "Введите цель (похудение / набор массы / поддержание здорового питания): ")
-    ban_products = input("Введите запрещенные продукты (через запятую): ")
-    number_of_calories = input("Введите количество калорий в день: ")
-
-    print(get_answer(target, ban_products, number_of_calories))

@@ -4,15 +4,19 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from config import TOKEN
-from app.handlers import router
-
+from app.handlers.calories_calculator_handler import router as calories_router
+from app.handlers.utility_handlers import router as utility_router
+from app.handlers.survey_handler import router as survey_router
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
 async def main():
-    dp.include_router(router)
+    dp.include_router(calories_router)
+    dp.include_router(utility_router)
+    dp.include_router(survey_router)
+
     await dp.start_polling(bot)
 
 
