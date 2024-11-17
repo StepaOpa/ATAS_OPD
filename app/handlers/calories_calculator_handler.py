@@ -67,11 +67,10 @@ async def activity(message: Message, state: FSMContext):
         await message.answer(f"{calories}")
         await state.clear()
     else:
-        await message.answer(f"{calories}")
+        await message.answer(generating()[user_id])
         await state.clear()
     cursor.close()
     connection.close()
-
 
 
 def generating():
