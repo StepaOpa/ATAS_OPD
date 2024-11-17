@@ -56,7 +56,7 @@ async def activity(message: Message, state: FSMContext):
     await state.update_data(activity=message.text)
     data = await state.get_data()
     last_dict = generating()
-    user_id = message.from_user.id
+    user_id = str(message.from_user.id)
     if user_id not in last_dict.keys():
         connection = sqlite3.connect('tablet.sql')
         cursor = connection.cursor()
