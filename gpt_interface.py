@@ -1,8 +1,5 @@
 import requests
 from config import YANDEX_CLOUD, YANDEX_GPT_API
-# b1gignv1fqqv4i0feomd
-
-# AQVNwk7s-5kcJcHpzAIJX5kGCGhuDcTQ8886PSmb
 
 
 def get_advice(goal, ban_products, number_of_calories):

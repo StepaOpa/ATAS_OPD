@@ -1,16 +1,16 @@
 def calculate_calories(age, weight, height, sex, activity):
-    if sex == 'male':
+    if sex in ['male','мужской','m','м']:
         bmr = 10 * weight + 6.25 * height - 5 * age + 5
-    if sex == 'female':
+    if sex == ['female','женский','f','ж']:
         bmr = 10 * weight + 6.25 * height - 5 * age - 161
-    if activity == 'sedentary':
+    if activity in ['sedentary','сидячий']:
         calories = bmr * 1.2
-    if activity == 'lightly active':
+    if activity in ['lightly active', 'немного активный']:
         calories = bmr * 1.375
-    if activity == 'moderately active':
+    if activity in ['moderately active','умеренно активный']:
         calories = bmr * 1.55
-    if activity == 'very active':
+    if activity in ['very active','очень активный']:
         calories = bmr * 1.7
-    if activity == 'extra active':
+    if activity == ['extra active','гиперактивный']:
         calories = bmr * 1.9
-    return calories
+    return round(calories)

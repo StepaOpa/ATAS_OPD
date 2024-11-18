@@ -1,3 +1,5 @@
+import sqlite3
+
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.state import StatesGroup, State
@@ -53,5 +55,44 @@ async def height(message: Message, state: FSMContext):
 async def activity(message: Message, state: FSMContext):
     await state.update_data(activity=message.text)
     data = await state.get_data()
-    await message.answer(f"{calculate_calories(data["age"], data["weight"], data["height"], data["sex"],  data["activity"])}")
-    await state.clear()
+    last_dict = generating()
+    user_id = str(message.from_user.id)
+    if user_id not in last_dict.keys():
+        connection = sqlite3.connect('tablet.sql')
+        cursor = connection.cursor()
+        calories = calculate_calories(data["age"], data["weight"], data["height"], data["sex"],  data["activity"])
+        sql = f'INSERT INTO users (ides, calories) VALUES ("{user_id}","{calories}")'
+        cursor.execute(sql)
+        connection.commit()
+        await message.answer(f"{calories}")
+        await state.clear()
+    else:
+        await message.answer(generating()[user_id])
+        await state.clear()
+    cursor.close()
+    connection.close()
+
+
+def generating():
+    connection = sqlite3.connect('tablet.sql')
+    cursor = connection.cursor()
+
+    passes = 'SELECT calories FROM users'
+    cursor.execute(passes)
+    rows1 = cursor.fetchall()
+
+    ids = 'SELECT ides FROM users'
+    cursor.execute(ids)
+    rows2 = cursor.fetchall()
+
+    id_calories = idict(rows1,rows2)
+
+    return id_calories
+
+
+def idict(a,b):
+    c = {}
+    for i,j in zip(b,a):
+        c[i[0]] = j[0]
+
+    return c
