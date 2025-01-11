@@ -15,9 +15,9 @@ class Reg(StatesGroup):
     age = State()
 
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    await message.answer('Hello!', reply_markup=kb.main_menu)
+# @router.message(CommandStart())
+# async def cmd_start(message: Message):
+#     await message.answer('Hello!', reply_markup=kb.main_menu)
 
 
 @router.message(Command('reg'))

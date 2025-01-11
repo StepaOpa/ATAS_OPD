@@ -1,11 +1,9 @@
-from aiogram.filters import Command
 from aiogram.types import Message
 import app.keyboards as kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-import gpt_interface
 import sqlite3
-
+import gpt_interface
 from aiogram import Router
 
 router = Router()
@@ -14,10 +12,11 @@ router = Router()
 class Survey(StatesGroup):
     goal = State()
     preferences = State()
+    allergy = State()
     ban_products = State()
 
 
-@router.message(lambda message: message.text == 'Начать опрос')
+@router.message(lambda message: message.text == "'Предпочтения'")
 async def calories_calculator(message: Message, state: FSMContext):
     await state.set_state(Survey.goal)
     await message.answer('Выберите цель:', reply_markup=kb.goals)
@@ -27,47 +26,69 @@ async def calories_calculator(message: Message, state: FSMContext):
 async def goal(message: Message, state: FSMContext):
     await state.update_data(goal=message.text)
     await state.set_state(Survey.preferences)
-    await message.answer('Напишите Ваши предпочтения в еде через запятую:')
+    await message.answer('Напишите ваши самые любимые продукты через запятую:')
 
 
 @router.message(Survey.preferences)
 async def preferences(message: Message, state: FSMContext):
     await state.update_data(preferences=message.text)
+    await state.set_state(Survey.allergy)
+    await message.answer('Если у вас есть аллергии, то напишите их через запятую, '
+                         'а если нет - нажмите на кнопку снизу.', reply_markup=kb.user_allergy)
+
+
+@router.message(Survey.allergy)
+async def preferences(message: Message, state: FSMContext):
+    await state.update_data(allergy=message.text)
     await state.set_state(Survey.ban_products)
-    await message.answer('Напишите Ваши нелюбимые продукты через запятую:')
+    await message.answer('Напишите ваши самые нелюбимые продукты через запятую:')
 
 
 @router.message(Survey.ban_products)
 async def ban_products(message: Message, state: FSMContext):
     await state.update_data(ban_products=message.text)
     data = await state.get_data()
-    number_of_calories = generating()[str(message.from_user.id)]
-    advice = gpt_interface.get_advice(
-        data['goal'], data['ban_products'], number_of_calories)
-    await message.answer(advice)
+    user_id = str(message.from_user.id)
+
+    connection = sqlite3.connect('tablet.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT id FROM users WHERE id = ?', (user_id,))
+
+    if cursor.fetchone():
+        sql = '''
+            UPDATE users 
+            SET goal = ?, favorite_foods = ?,allergy = ?, ban_products = ? 
+            WHERE id = ?
+        '''
+        cursor.execute(sql, (data['goal'], data['preferences'],data['allergy'],data['ban_products'],user_id))
+    else:
+        sql = '''
+        INSERT INTO users (id, goal, favorite_foods, allergy, ban_products) 
+        VALUES (?, ?, ?, ?, ?)
+        '''
+        cursor.execute(sql,(user_id,data["goal"],data["preferences"],data["allergy"],data["ban_products"]))
+
+    connection.commit()
+    await message.answer('Отлично! Если все параметры заполнены верно, то вы сможете получить свой План.',
+                         reply_markup=kb.main_menu)
     await state.clear()
 
 
-def generating():
-    connection = sqlite3.connect('tablet.sql')
+@router.message(lambda message: message.text == 'Получить план')
+async def give_advice(message: Message, state: FSMContext):
+    user_id = str(message.from_user.id)
+
+    connection = sqlite3.connect('tablet.db')
     cursor = connection.cursor()
+    cursor.execute('SELECT * FROM users WHERE id = ?',(user_id,))
+    anydata = cursor.fetchone()
 
-    passes = 'SELECT calories FROM users'
-    cursor.execute(passes)
-    rows1 = cursor.fetchall()
+    calories = anydata[1]
+    goal = anydata[2]
+    preferences = anydata[3]
+    allergy = anydata[4]
+    ban_products = anydata[5]
 
-    ids = 'SELECT ides FROM users'
-    cursor.execute(ids)
-    rows2 = cursor.fetchall()
-
-    id_calories = idict(rows1,rows2)
-
-    return id_calories
-
-
-def idict(a,b):
-    c = {}
-    for i,j in zip(b,a):
-        c[i[0]] = j[0]
-
-    return c
+    advice = gpt_interface.get_advice(goal, preferences, ban_products, allergy, calories)
+    await message.answer(advice, reply_markup=kb.main_menu)
+    await state.clear()
