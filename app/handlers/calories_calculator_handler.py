@@ -82,5 +82,3 @@ async def activity(message: Message, state: FSMContext):
                              "Если 'Предпочтения' уже определны, вы можете получить План питания.",reply_markup=kb.main_menu)
     await state.clear()
     connection.commit()
-    cursor.close()
-    connection.close()

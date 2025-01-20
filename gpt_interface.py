@@ -2,7 +2,7 @@ import requests
 from config import YANDEX_CLOUD, YANDEX_GPT_API
 
 
-def get_advice(goal, preferences, ban_products, allergy, number_of_calories):
+def get_advice(goal, preferences, ban_products, allergy, number_of_calories, timeline):
     prompt = {
         "modelUri": f"gpt://{YANDEX_CLOUD}/yandexgpt-lite",
         "completionOptions": {
@@ -13,16 +13,17 @@ def get_advice(goal, preferences, ban_products, allergy, number_of_calories):
         "messages": [
             {
                 "role": "system",
-                "text": "Ты опытный диетолог. Твоя цель - составлять персональные рационы питания учитывая все запросы пользователя."
+                "text": "You're an experienced nutritionist. Your goal is to create personal food rations based on all user requests. Russian is the only language that the user understands, so translate everything into Russian."
             },
             {
                 "role": "user",
-                "text": f"Generate a varied meal plan for the week for {goal}."
-                 f" Diet products should not include: {ban_products}. And maybe should include {preferences} (not neccessary)."
-                 f"If this sentence has a semicolon followed by 'У меня нет аллергий' ignore that sentence: {allergy}. "
-                 "If the proposal lists specific types of allergies, assume that the final nutrition plan should exclude foods "
-                 f"that cause these allergies. The number of calories per day should be about {number_of_calories}. "
-                 "Write down the number of calories for each meal, as well as the total amount for the day."
+                "text": f"Make a comprehensive nutrition plan consistent with the principles of {goal}. "
+                        f"The plan should be designed for a {timeline} days, each day should include breakfast, lunch, dinner and "
+                        "two snacks. Each meal should be balanced, nutritious and comply with dietary recommendations "
+                        f"{goal}. (Breakfast, lunch, dinner and two snacks should be about {number_of_calories} calories.) "
+                        "Specify the number of grams of each product in the dish."
+                        f"You can use these products: {preferences}, and others. But don't use these products: {ban_products}."
+                        f"Also pay attention to the presence of my allergies: {allergy}."
             }
         ]
     }

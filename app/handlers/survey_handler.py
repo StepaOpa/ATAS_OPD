@@ -14,7 +14,7 @@ class Survey(StatesGroup):
     preferences = State()
     allergy = State()
     ban_products = State()
-
+    timeline = State()
 
 @router.message(lambda message: message.text == "'Предпочтения'")
 async def calories_calculator(message: Message, state: FSMContext):
@@ -57,10 +57,10 @@ async def ban_products(message: Message, state: FSMContext):
     if cursor.fetchone():
         sql = '''
             UPDATE users 
-            SET goal = ?, favorite_foods = ?,allergy = ?, ban_products = ? 
+            SET goal = ?, favorite_foods = ?,allergy = ?, ban_products = ?
             WHERE id = ?
         '''
-        cursor.execute(sql, (data['goal'], data['preferences'],data['allergy'],data['ban_products'],user_id))
+        cursor.execute(sql, (data['goal'], data['preferences'],data['allergy'],data['ban_products'], user_id))
     else:
         sql = '''
         INSERT INTO users (id, goal, favorite_foods, allergy, ban_products) 
@@ -76,11 +76,27 @@ async def ban_products(message: Message, state: FSMContext):
 
 @router.message(lambda message: message.text == 'Получить план')
 async def give_advice(message: Message, state: FSMContext):
-    user_id = str(message.from_user.id)
+    await message.answer('На сколько дней хотите получить план? (цифрой от 1 до 7)')
+    await state.set_state(Survey.timeline)
 
+
+@router.message(Survey.timeline)
+async def give_advice(message: Message, state: FSMContext):
+    await state.update_data(timeline=message.text)
     connection = sqlite3.connect('tablet.db')
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM users WHERE id = ?',(user_id,))
+    data = await state.get_data()
+    user_id = str(message.from_user.id)
+
+    sql = '''
+                UPDATE users 
+                SET timeline = ?
+                WHERE id = ?
+            '''
+    cursor.execute(sql, (data["timeline"], user_id))
+    connection.commit()
+
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
     anydata = cursor.fetchone()
 
     calories = anydata[1]
@@ -88,7 +104,8 @@ async def give_advice(message: Message, state: FSMContext):
     preferences = anydata[3]
     allergy = anydata[4]
     ban_products = anydata[5]
+    timeline = anydata[6]
 
-    advice = gpt_interface.get_advice(goal, preferences, ban_products, allergy, calories)
+    advice = gpt_interface.get_advice(goal, preferences, ban_products, allergy, calories, timeline)
     await message.answer(advice, reply_markup=kb.main_menu)
     await state.clear()
