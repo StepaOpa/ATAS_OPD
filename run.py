@@ -18,17 +18,17 @@ async def main():
     query = '''
     CREATE TABLE IF NOT EXISTS users (
         id int primary key,
-        calories int,
+        calories TEXT,
         goal TEXT,
         favorite_foods TEXT,
         allergy TEXT,
-        ban_products TEXT
+        ban_products TEXT,
+        timeline TEXT
         )
     '''
     cursor.execute(query)
     connection.commit()
-    cursor.close()
-    connection.close()
+
 
     dp.include_router(calories_router)
     dp.include_router(utility_router)
